@@ -52,6 +52,10 @@
         font-weight: bold;
         margin-bottom: 20px;
         text-align: center;
+		animation-duration: 10s;
+  animation-name: slidein;
+  animation-iteration-count: infinite;
+  transition: all 3s ease-out;
     }
 
     #countdown {
@@ -81,22 +85,32 @@
         position: fixed;
         top: 0;
         left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.8);
-        color: white;
+        color: black;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         font-size: 20px;
-        z-index: 1000;
         visibility: hidden;
     }
 
     #rotatePrompt.visible {
         visibility: visible;
     }
+	
+@keyframes slidein {
+  0% {
+	color: rgba(255, 255, 255, 0.5)
+  }
+
+  50% {
+	color: rgba(255, 255, 255, 0.8)
+  }
+  
+  100% {
+    color: rgba(255, 255, 255, 0.5)
+  }
+}
 </style>
 </head>
 <body>
@@ -106,7 +120,7 @@
 <button id="playButton">Проиграть музыку</button>
 
 <div id="rotatePrompt">
-    <p>Пожалуйста, переверните телефон для лучшего просмотра.</p>
+    <p>Переверните телефон для лучшего просмотра. (необязательно)</p>
 </div>
 
 <script>
@@ -203,6 +217,7 @@ document.getElementById("playButton").addEventListener("click", function () {
     if (audio.paused) {
         console.log("ACTIVATE1");
         if (active == 1) {
+			rotatePrompt.classList.remove('visible');
             console.log("ACTIVATE");
             // Создаем интервалы и сохраняем их ссылки
             interval1 = setInterval(updateRandomText, 10000);
