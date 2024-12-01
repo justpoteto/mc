@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InfBlocks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: "Montserrat", serif;
+        color: rgba(255, 255, 255, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        transition: opacity 2s ease-in-out; /* Плавный переход */
+        z-index: -1;
+    }
+
+    .background.hidden {
+        opacity: 0; /* Скрытое изображение */
+    }
+
+    .background.visible {
+        opacity: 1; /* Видимое изображение */
+    }
+
+    @media (max-width: 768px) {
+        body {
+            background-attachment: scroll; /* На мобильных убираем fixed */
+        }
+    }
+
+    #randomText {
+        font-size: 30px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    #countdown {
+        font-size: 40px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    #playButton {
+        font-size: 20px;
+        padding: 10px 20px;
+        cursor: pointer;
+        border: none;
+        background-color: rgba(76, 175, 80, 0.7);
+        color: rgba(255,255,255,0.7);
+		transition: all 3s ease-out; 
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+
+    #volumeControl {
+        width: 150px;
+        margin-top: 10px;
+    }
+	    #rotatePrompt {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-size: 20px;
+        z-index: 1000;
+        visibility: hidden;
+    }
+
+    #rotatePrompt.visible {
+        visibility: visible;
+    }
+</style>
+</head>
+<body>
+
+<div id="randomText"></div>
+<div id="countdown"></div>
+<button id="playButton">Проиграть музыку</button>
+
+<div id="rotatePrompt">
+    <p>Пожалуйста, переверните телефон для лучшего просмотра.</p>
+</div>
+
+<script>
+
+    const rotatePrompt = document.getElementById('rotatePrompt');
+
+    function checkOrientation() {
+        if (window.innerWidth < window.innerHeight) {
+            // Портретная ориентация на мобильном устройстве
+            rotatePrompt.classList.add('visible');
+        } else {
+            // Альбомная ориентация или на десктопе
+            rotatePrompt.classList.remove('visible');
+        }
+    }
+
+    // Проверяем ориентацию при загрузке
+    window.addEventListener('load', checkOrientation);
+
+    // Отслеживаем изменения ориентации устройства
+    window.addEventListener('resize', checkOrientation);
+
+    // Массив изображений для фона
+    const slides = [
+        'slide1.png',
+        'slide2.png',
+        'slide3.png',
+        'slide4.png',
+        'slide5.png',
+        'slide6.png',
+        'slide7.png',
+        'slide8.png'
+    ];
+
+    let currentSlide = 0;
+
+    // Создаем два слоя для смены фона
+    const background1 = document.createElement('div');
+    const background2 = document.createElement('div');
+    background1.className = 'background visible';
+    background2.className = 'background hidden';
+
+    document.body.appendChild(background1);
+    document.body.appendChild(background2);
+
+    // Функция смены слайдов
+    function changeSlide() {
+        const nextSlide = (currentSlide + 1) % slides.length;
+
+        // Устанавливаем следующее изображение на скрытый слой
+        background2.style.backgroundImage = `url('${slides[nextSlide]}')`;
+
+        // Переключаем классы видимости
+        background1.classList.add('hidden');
+        background2.classList.add('visible');
+
+        // Меняем местами слои после завершения анимации
+        setTimeout(() => {
+            background1.style.backgroundImage = background2.style.backgroundImage;
+            background1.classList.remove('hidden');
+            background1.classList.add('visible');
+            background2.classList.remove('visible');
+            background2.classList.add('hidden');
+        }, 2000); // Длительность перехода
+
+        currentSlide = nextSlide;
+    }
+
+    // Запуск смены слайдов каждые 5 секунд
+
+    // Тексты для рандомной смены
+    const texts = [
+        "Всё утеряно",
+        "Время отдаляется...",
+        "Мониторинг уже не вернуть"
+    ];
+
+    // Функция смены текста
+    function updateRandomText() {
+        const randomIndex = Math.floor(Math.random() * texts.length);
+        document.getElementById("randomText").innerHTML = texts[randomIndex];
+    }
+
+    updateRandomText();
+
+    // Добавление аудио и управление
+    const audio = new Audio('sl.mp3');
+    audio.volume = 1;
+
+let active = 1; // Начальное значение
+let interval1, interval2; // Для хранения ссылок на интервалы
+
+document.getElementById("playButton").addEventListener("click", function () {
+    if (audio.paused) {
+        console.log("ACTIVATE1");
+        if (active == 1) {
+            console.log("ACTIVATE");
+            // Создаем интервалы и сохраняем их ссылки
+            interval1 = setInterval(updateRandomText, 10000);
+            interval2 = setInterval(changeSlide, 10000);
+            active = 0; // Меняем состояние, чтобы интервалы запускались один раз
+        }
+        audio.play();
+        this.innerHTML = "Пауза";
+        this.style = "background-color: rgba(76, 175, 80, 0.1); rgba(255,255,255,0.1);";
+    } else {
+        audio.pause();
+        this.innerHTML = "Проиграть музыку";
+        this.style = "background-color: rgba(76, 175, 80, 0.7); rgba(255,255,255,0.7);";
+
+        // Если хотите останавливать интервалы при паузе, можно добавить:
+        if (interval1) clearInterval(interval1);
+        if (interval2) clearInterval(interval2);
+        active = 1; // Возвращаем начальное значение
+    }
+});
+
+
+</script>
+
+</body>
+</html>
